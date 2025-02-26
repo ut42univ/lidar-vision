@@ -1,0 +1,3 @@
+setuptools
+opencv-python
+open3d
