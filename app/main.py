@@ -3,6 +3,7 @@
 import cv2
 import numpy as np
 import pyaudio
+from audio import AudioGenerator
 from cv2display import CV2Display
 from lidar import LidarDevice
 from pointcloud import PointCloudProcessor
@@ -53,9 +54,8 @@ def main(dev_idx: int = 0) -> None:
     pc_processor.pcd = pc_processor.create_point_cloud(lidar.session)
     pc_processor.vis.add_geometry(pc_processor.pcd)
 
-    # Initialize audio stream
-    p = pyaudio.PyAudio()
-    stream = p.open(format=pyaudio.paFloat32, channels=2, rate=SAMPLE_RATE, output=True)
+    # Initialize audio generator
+    audio_gen = AudioGenerator()
 
     while True:
         lidar.event.wait()
@@ -76,11 +76,12 @@ def main(dev_idx: int = 0) -> None:
         depth_center = depth_frame[height // 2, width // 2]
 
         # Use non-linear mapping with exponent=2 (adjust as needed)
-        volume = map_depth_to_volume(depth_center, max_distance=2.0, exponent=1)
+        volume = audio_gen.map_depth_to_volume(
+            depth_center, max_distance=2.0, exponent=1
+        )
 
         # Generate a tone with a fixed frequency (e.g., 440Hz) (play the same for left and right)
-        tone = generate_tone(440, DURATION, volume)
-        stream.write(tone)
+        audio_gen.play_tone(440, volume)
 
         display.show(overlay)
         if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -90,9 +91,7 @@ def main(dev_idx: int = 0) -> None:
     # Cleanup
     display.close()
     pc_processor.vis.destroy_window()
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
+    audio_gen.close()
 
 
 if __name__ == "__main__":
