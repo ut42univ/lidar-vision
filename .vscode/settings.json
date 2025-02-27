@@ -1,11 +1,16 @@
 {
   "cSpell.words": [
     "coeffs",
+    "DBSCAN",
     "downsampling",
     "imshow",
     "ndarray",
+    "numpy",
     "pointcloud",
+    "pyaudio",
     "rgbd",
+    "setuptools",
+    "tobytes",
     "UDID"
   ]
 }
