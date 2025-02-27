@@ -2,39 +2,10 @@
 
 import cv2
 import numpy as np
-import pyaudio
 from audio import AudioGenerator
 from cv2display import CV2Display
 from lidar import LidarDevice
 from pointcloud import PointCloudProcessor
-
-# Function for generating sound
-SAMPLE_RATE = 44100  # Sampling rate
-DURATION = 0.1  # Tone playback duration (seconds)
-
-
-def generate_tone(frequency, duration, volume):
-    """
-    Generate a fixed stereo tone (same for left and right).
-    volume: range from 0 to 1
-    """
-    t = np.linspace(0, duration, int(SAMPLE_RATE * duration), endpoint=False)
-    tone = np.sin(2 * np.pi * frequency * t) * volume
-    # Stereo: same for left and right
-    stereo = np.column_stack((tone, tone))
-    return stereo.astype(np.float32).tobytes()
-
-
-def map_depth_to_volume(depth_value, max_distance=10.0, exponent=2):
-    """
-    Function to apply non-linear (squared here) mapping so that the smaller the depth_value, the louder the volume.
-    The larger the exponent value, the more emphasized the volume change at close range.
-    """
-    # Normalize to range 0 to 1
-    ratio = max(0.0, min(1.0, (max_distance - depth_value) / max_distance))
-    # Non-linear mapping (e.g., squared)
-    volume = ratio**exponent
-    return volume
 
 
 def main(dev_idx: int = 0) -> None:
